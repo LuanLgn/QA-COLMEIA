@@ -1,75 +1,242 @@
-# Auditoria de Qualidade ColmeIA
+# Teste Técnico — ColmeIA QA
 
-Este repositório contém a suíte de testes E2E (End-to-End) e a documentação técnica da auditoria realizada na plataforma ColmeIA. O escopo do projeto não se limitou à automação de fluxos felizes, englobando também a adoção de **Offensive QA**, análise estática de código (engenharia reversa do bundle JavaScript) e mapeamento de falhas de UX.
+Este repositório contém a suíte de testes E2E (End-to-End) e a documentação técnica da auditoria realizada na plataforma ColmeIA.
 
-## Relatório Executivo e Casos de Teste
-
-Para manter este repositório objetivo, toda a documentação de testes manuais, exploratórios e os relatórios de vulnerabilidade foram centralizados no documento abaixo:
-
-**[Acessar Relatório Executivo completo (Google Docs)](https://docs.google.com/document/d/1uuzRHT5-TVnZpk4Tcq9vyIohMBGoJx_BVi4aLWsCr8c/edit?usp=sharing)**
-
-**O relatório abrange detalhadamente:**
-* **Arquitetura POM:** Estruturação dos testes automatizados utilizando Page Object Model.
-* **Segurança (Offensive QA):** Provas de conceito (PoC) para vulnerabilidades de IDOR (falta de autenticação nas rotas) e Stored XSS.
-* **Code Review:** Análise do bundle Angular para identificar a raiz de bugs complexos (como erros de Timezone e colisões de métodos).
-* **Easter Eggs:** Mapeamento de comportamentos falhos inseridos intencionalmente no desafio.
+O escopo do projeto vai além da automação de fluxos funcionais, incluindo:
+- Offensive QA (testes exploratórios com foco em segurança)
+- Análise estática do bundle JavaScript (engenharia reversa)
+- Mapeamento de falhas de UX e inconsistências de comportamento
+- Documentação de bugs com impacto real no sistema
 
 ---
 
-## Arquitetura do Projeto
+Durante a análise da aplicação foram identificados:
 
-A automação foi desenvolvida em **Cypress** utilizando o padrão **Page Object Model (POM)** para garantir fácil manutenção e escalabilidade da suíte.
+-  2 Vulnerabilidades críticas de segurança (IDOR / ausência de autenticação)
+-  4 bugs de alto impacto funcional
+-  3 problemas de UX e comportamento inconsistente
+-  Análise de código (main.js minificado no front-end)
+-  Cobertura de testes E2E com Cypress + Page Object Model (POM)
+
+---
+
+#  Arquitetura de Automação
+
+A automação foi estruturada utilizando **Cypress** com padrão **Page Object Model (POM)**, garantindo escalabilidade e manutenção.
 
 ```text
-├── cypress/e2e/
-│   ├── pages/                   # Page Objects (Abstração de seletores e métodos)
-│   │   ├── DatabasePage.js      # Ações do CRUD de Bancos de Dados
-│   │   ├── LoginPage.js         # Ações do fluxo de Autenticação
-│   │   └── DashboardPage.js     # Ações e navegação do Dashboard principal
-│   │
-│   ├── specs/                   # Suítes de Testes (Specs)
-│   │   ├── database.cy.js       # Validação de persistência e regras de negócio
-│   │   ├── login.cy.js          # Fluxos de autenticação (Happy/Sad paths)
-│   │   └── dashboard.cy.js      # Verificações de UI/UX e estado da página
+cypress/e2e/
+├── pages/
+│   ├── LoginPage.js
+│   ├── DatabasePage.js
+│   └── DashboardPage.js
 │
-├── src/
-│   └── main-OLCR30TF.js         # Bundle JS da aplicação alvo (utilizado para Code Review estático)
-```
+├── specs/
+│   ├── login.cy.js
+│   ├── database.cy.js
+│   └── dashboard.cy.js
+│
+src/
+└── main-OLCR30TF.js   # Bundle analisado via code review estático
+````
 
 ---
 
-## Como Executar o Projeto
+## Análise de Segurança
 
-### 1. Clonar o repositório
-```bash
-git clone https://github.com/LuanLgn/QA-COLMEIA.git
-cd QA-COLMEIA
-```
+### SEC-001 — Acesso sem autenticação (IDOR)
 
-### 2. Instalar dependências
-```bash
-npm install
-```
+**Resultado Esperado**
+Bloquear acesso não autenticado de usuário.
 
-### 3. Execução dos Testes
-
-**Modo Interativo (Cypress Test Runner):**
-Ideal para visualização e depuração dos testes em tempo real.
-```bash
-npx cypress open
-```
-
-**Modo Headless (CI/CD Pipeline):**
-Ideal para execução rápida no terminal, gerando relatórios sem interface gráfica.
-```bash
-npx cypress run
-```
+**Resultado Obtido**
+Falha de controle de acesso — usuário não autenticado consegue acessar rotas internas diretamente.
 
 ---
+
+### SEC-002 — Rotas internas expostas
+
+* `/dashboard`
+* `/dashboard/campanha/bancos-de-dados`
+* `/dashboard/campanha/colmeia-forms`
+
+**Resultado:**
+Todas acessíveis sem autenticação.
+
+---
+
+### SEC-003 — XSS potencial (armazenamento)
+
+**Descrição:** Inputs aceitam HTML sem sanitização explícita.
+
+**Resultado:**
+Payload armazenado no sistema, sem execução no ambiente atual.
+
+---
+
+# Code Review — Erros de Lógica (Bundle JS)
+
+---
+
+### ERR-01 — Bug de timezone (data de criação)
+
+**Problema:**
+Datas são exibidas com +1 dia dependendo do fuso horário.
+
+**Causa raiz:**
+Uso de `toISOString()` (UTC ao invés de data local).
+
+---
+
+### ERR-02 — Arquivar = Apagar
+
+**Problema:**
+Botão “Arquivar” executa a mesma função de deleção.
+
+---
+
+### ERR-03 — Bypass de validação
+
+**Problema:**
+Campo vazio pode ser salvo via múltiplos cliques.
+
+---
+
+### ERR-04 — Refresh destrói dados
+
+**Problema:**
+Botão de refresh limpa estado local sem aviso.
+
+---
+
+### ERR-05 — Lupa decorativa
+
+**Problema:**
+Botão de busca não possui handler (somente input filtra).
+
+---
+
+### ERR-06 — Empty state inconsistente
+
+**Problema:**
+Mensagem de lista vazia não reaparece após deletar todos os itens.
+
+---
+
+### ERR-07 — Login com falso erro
+
+**Problema:**
+Credenciais válidas exibem modal de erro antes do login.
+
+---
+
+### ERR-08 — Recuperação de senha inexistente
+
+**Problema:**
+Link não possui ação ou rota associada.
+
+---
+
+# Casos de Teste (QA Evidence)
+
+---
+
+## TC-LOGIN-001 — Login válido
+
+**Pré-condição:** Usuário na tela de login
+
+### Passos:
+
+1. Inserir email válido
+2. Inserir senha válida
+3. Clicar em “Entrar”
+
+### Resultado esperado:
+
+Redirecionamento direto para `/dashboard`
+
+### Resultado observado:
+
+Modal de erro exibido mesmo com credenciais corretas. Após clicar em “Continuar”, login é efetuado.
+
+---
+
+## TC-DB-001 — Criar item no banco de dados
+
+### Passos:
+
+1. Acessar módulo “Bancos de Dados”
+2. Criar novo item
+3. Salvar
+
+### Resultado esperado:
+
+Item persistido via backend e mantido após reload
+
+### Resultado observado:
+
+Item existe apenas em memória, sendo perdido após refresh
+
+---
+
+## TC-DB-002 — Exclusão de item
+
+### Resultado esperado:
+
+Item removido corretamente
+
+### Resultado observado:
+
+Item removido da lista (sem persistência backend envolvida)
+
+---
+
+# Mapeamento de Bugs e Easter Eggs
+
+| Módulo         | Problema                      |
+| -------------- | ----------------------------- |
+| Login          | Modal de erro em login válido |
+| Login          | Recuperação de senha inativa  |
+| Banco de Dados | Arquivar = Apagar             |
+| Banco de Dados | Busca decorativa              |
+| Banco de Dados | Refresh apaga estado          |
+| Banco de Dados | Validação bypassável          |
+| Forms          | Página em branco              |
+
+---
+
+Dá sim — e faz sentido você querer isso, porque em README de portfólio a **primeira pessoa geralmente vende melhor tua responsabilidade direta no trabalho**.
+
+Só tem um cuidado: não exagerar no “eu fiz tudo” num tom meio inflado. Tem que ficar **confiante, mas profissional**.
+
+Aqui vai tua seção reescrita em 1ª pessoa, bem ajustada:
+
+---
+
 ## Considerações finais
 
-Este projeto foi desenvolvido com foco em uma abordagem real de QA moderno, indo além da automação tradicional para incluir análise de segurança, investigação de comportamento da aplicação e leitura de código em nível de bundle.
+Neste projeto, atuei como QA com uma abordagem moderna e ofensiva de qualidade, indo além da automação tradicional de testes.
 
-O objetivo foi demonstrar capacidade de identificar não apenas falhas funcionais, mas também problemas estruturais, riscos de segurança e inconsistências de arquitetura.
+Minha análise incluiu:
 
-Obrigado pela oportunidade! ^_^
+* automação de testes E2E com Cypress (Page Object Model)
+* análise de segurança com foco em vulnerabilidades (Offensive QA)
+* investigação de comportamento da aplicação em runtime
+* leitura e engenharia reversa de bundle JavaScript (code review estático)
+* identificação de inconsistências estruturais e falhas de UX
+* validação de fluxos críticos e regras de negócio
+
+O objetivo não foi apenas validar funcionalidades, mas sim simular uma análise real de qualidade em ambiente de produção, identificando riscos funcionais, estruturais e de segurança.
+
+## Relatório complementar
+
+A documentação completa dos testes manuais, exploratórios e achados de segurança está disponível no [Caderno de Testes](https://docs.google.com/document/d/1uuzRHT5-TVnZpk4Tcq9vyIohMBGoJx_BVi4aLWsCr8c/edit?usp=sharing)
+
+
+---
+
+# Encerramento
+
+Obrigado pela oportunidade de participar do desafio técnico.
+
+Fico à disposição para os próximos passos ^_^

@@ -1,43 +1,69 @@
-# Auditoria de Testes Q.A. - ColmeIA
+# Auditoria de Qualidade e Segurança — ColmeIA
 
-Este repositório contém a suíte de testes automatizados e a documentação da auditoria técnica realizada na plataforma ColmeIA. O objetivo deste projeto é identificar vulnerabilidades de segurança, bugs de lógica e inconsistências de UX.
+Este repositório contém a suíte de testes E2E (End-to-End) e a documentação técnica da auditoria realizada na plataforma ColmeIA. O escopo do projeto não se limitou à automação de fluxos felizes, englobando também a adoção de **Offensive QA**, análise estática de código (engenharia reversa do bundle JavaScript) e mapeamento de falhas de UX.
 
-## 📁 Conteúdo do Repositório
+## Relatório Executivo e Casos de Teste
 
-- **`caderno_de_testes.md`**: Documentação detalhada de todos os cenários de teste (Happy Path, Sad Path), casos de teste de segurança e bugs encontrados.
-- **`erro_de_logica.md`**: Relatório técnico com a análise de causa raiz de erros identificados no código-fonte, incluindo evidências do bundle minificado.
-- **`cypress/e2e/`**: Suíte de testes automatizados escrita em Cypress, focando em:
-    - Autenticação (Login)
-    - Gestão de Banco de Dados (CRUD)
-    - Auditoria de Segurança (IDOR e XSS)
+Para manter este repositório objetivo, toda a documentação de testes manuais, exploratórios e os relatórios de vulnerabilidade foram centralizados no documento abaixo:
 
-## 🚀 Como Rodar o Projeto
+**[Acessar Relatório Executivo completo (Google Docs)](https://docs.google.com/document/d/1uuzRHT5-TVnZpk4Tcq9vyIohMBGoJx_BVi4aLWsCr8c/edit?usp=sharing)**
 
-Para executar os testes em sua máquina local, siga os passos abaixo:
+**O relatório abrange detalhadamente:**
+* **Arquitetura POM:** Estruturação dos testes automatizados utilizando Page Object Model.
+* **Segurança (Offensive QA):** Provas de conceito (PoC) para vulnerabilidades de IDOR (falta de autenticação nas rotas) e Stored XSS.
+* **Code Review:** Análise do bundle Angular para identificar a raiz de bugs complexos (como erros de Timezone e colisões de métodos).
+* **Easter Eggs:** Mapeamento de comportamentos falhos inseridos intencionalmente no desafio.
 
-### Pré-requisitos
-Certifique-se de ter o [Node.js](https://nodejs.org/) instalado (versão 14 ou superior recomendada).
+---
+
+## Arquitetura do Projeto
+
+A automação foi desenvolvida em **Cypress** utilizando o padrão **Page Object Model (POM)** para garantir fácil manutenção e escalabilidade da suíte.
+
+```text
+├── cypress/e2e/
+│   ├── pages/                   # Page Objects (Abstração de seletores e métodos)
+│   │   ├── DatabasePage.js      # Ações do CRUD de Bancos de Dados
+│   │   ├── LoginPage.js         # Ações do fluxo de Autenticação
+│   │   └── DashboardPage.js     # Ações e navegação do Dashboard principal
+│   │
+│   ├── specs/                   # Suítes de Testes (Specs)
+│   │   ├── database.cy.js       # Validação de persistência e regras de negócio
+│   │   ├── login.cy.js          # Fluxos de autenticação (Happy/Sad paths)
+│   │   └── dashboard.cy.js      # Verificações de UI/UX e estado da página
+│
+├── src/
+│   └── main-OLCR30TF.js         # Bundle JS da aplicação alvo (utilizado para Code Review estático)
+```
+
+---
+
+## Como Executar o Projeto
 
 ### 1. Clonar o repositório
 ```bash
-git clone https://github.com/LuanLgn/ANALISTA-DE-TESTES-Q-A---COLMEIA.git
-cd ANALISTA-DE-TESTES-Q-A---COLMEIA
+git clone https://github.com/LuanLgn/QA-COLMEIA.git
+cd QA-COLMEIA
 ```
 
-### 2. Instalar as dependências
+### 2. Instalar dependências
 ```bash
 npm install
 ```
 
-### 3. Abrir o Cypress (Interface Gráfica)
+### 3. Execução dos Testes
+
+**Modo Interativo (Cypress Test Runner):**
+Ideal para visualização e depuração dos testes em tempo real.
 ```bash
 npx cypress open
 ```
 
-### 4. Executar os testes em modo Headless (Terminal)
+**Modo Headless (CI/CD Pipeline):**
+Ideal para execução rápida no terminal, gerando relatórios sem interface gráfica.
 ```bash
 npx cypress run
 ```
 
 ---
-*Este projeto foi desenvolvido como parte de um desafio técnico de Q.A. Engineering.*
+*Desenvolvido como resolução de desafio técnico focado em Quality Assurance e Automação de Testes ^_^*

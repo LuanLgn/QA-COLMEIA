@@ -66,4 +66,10 @@ npx cypress run
 ```
 
 ---
-*Desenvolvido como resolução de desafio técnico focado em Quality Assurance e Automação de Testes ^_^*
+## Considerações finais
+
+Este projeto foi desenvolvido com foco em uma abordagem real de QA moderno, indo além da automação tradicional para incluir análise de segurança, investigação de comportamento da aplicação e leitura de código em nível de bundle.
+
+O objetivo foi demonstrar capacidade de identificar não apenas falhas funcionais, mas também problemas estruturais, riscos de segurança e inconsistências de arquitetura.
+
+Obrigado pela oportunidade! ^_^

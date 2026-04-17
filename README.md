@@ -3,7 +3,7 @@
 Este repositório contém a suíte de testes E2E (End-to-End) e a documentação técnica da auditoria realizada na plataforma ColmeIA.
 
 O escopo do projeto vai além da automação de fluxos funcionais, incluindo:
-- Offensive QA (testes exploratórios com foco em segurança)
+- Testes exploratórios com foco em segurança
 - Análise estática do bundle JavaScript (engenharia reversa)
 - Mapeamento de falhas de UX e inconsistências de comportamento
 - Documentação de bugs com impacto real no sistema
@@ -220,7 +220,7 @@ Neste projeto, atuei como QA com uma abordagem moderna e ofensiva de qualidade, 
 Minha análise incluiu:
 
 * automação de testes E2E com Cypress (Page Object Model)
-* análise de segurança com foco em vulnerabilidades (Offensive QA)
+* análise de segurança com foco em vulnerabilidades 
 * investigação de comportamento da aplicação em runtime
 * leitura e engenharia reversa de bundle JavaScript (code review estático)
 * identificação de inconsistências estruturais e falhas de UX

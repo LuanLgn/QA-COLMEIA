@@ -1,4 +1,4 @@
-# Auditoria de Qualidade e Segurança — ColmeIA
+# Auditoria de Qualidade ColmeIA
 
 Este repositório contém a suíte de testes E2E (End-to-End) e a documentação técnica da auditoria realizada na plataforma ColmeIA. O escopo do projeto não se limitou à automação de fluxos felizes, englobando também a adoção de **Offensive QA**, análise estática de código (engenharia reversa do bundle JavaScript) e mapeamento de falhas de UX.
 
